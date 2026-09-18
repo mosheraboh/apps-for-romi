@@ -5,8 +5,9 @@
    A local, offline practice app that:
    - Asks one multiplication fact at a time (typed answer, or "I don't know")
    - Tracks mastery per fact using a Leitner-style box (0-5)
-   - Mixes ~2/3 practice from facts she's expected to know with
-     ~1/3 from facts she's still learning (spaced repetition)
+   - Mixes ~1/2 practice from facts she's expected to know with
+     ~1/2 from facts she's still learning (spaced repetition), and
+     avoids repeating any of the last few questions when possible
    - Rewards correct answers with stars, streaks, and stickers
    - Splits the times table into 10 levels, taught in the order kids
      usually find easiest (1s, 2s, 10s, 5s, 3s, 4s, 6s, 9s, 7s, 8s).
@@ -16,10 +17,11 @@
 ------------------------------------------------------------------------ */
 
 const STORAGE_KEY = 'romiMultiplicationProgressV1';
-const KNOWN_BOX_THRESHOLD = 3;   // box >= 3 => "known"
+const KNOWN_BOX_THRESHOLD = 2;   // box >= 2 => "known"
 const MASTERED_BOX_THRESHOLD = 5; // box >= 5 => "mastered" (darker green)
 const MAX_BOX = 5;
-const KNOWN_PICK_RATIO = 2 / 3;  // ~2/3 of questions from known facts
+const KNOWN_PICK_RATIO = 1 / 2;  // ~1/2 of questions from known facts (was 2/3 — leveling up dragged on)
+const RECENT_AVOID_WINDOW = 3;   // don't repeat any of the last N facts if the pool allows it
 
 const STICKER_SET = ['🦄','🌈','🐱','🍦','🎈','🦋','🍭','🎨','🚀','🌟','🐬','🍩','🐢','🌻','🦕','🍓','🎪','🐧','🍉','🥳'];
 const STICKER_MILESTONES = [5, 10, 20, 35, 50, 75, 100, 150, 200, 300, 400, 500, 650, 800, 1000, 1200, 1500, 1800, 2200, 2600];
@@ -60,7 +62,7 @@ function defaultState() {
 
 let state = loadState();
 let currentFact = null;   // { id, a, b }
-let lastFactId = null;
+let recentFactIds = [];   // short history, to avoid repeating recent questions
 let feedbackTimer = null;
 let stickerToastTimer = null;
 
@@ -192,12 +194,12 @@ function levelProgressData() {
 }
 
 /* ------------------------ Fact selection ------------------------
-   ~2/3 of the time: pick from facts she's expected to know (box >= 3),
+   ~1/2 of the time: pick from facts she's expected to know (box >= 2),
      weighted toward the ones seen longest ago (spaced repetition).
-   ~1/3 of the time: pick from facts still being learned (box < 3),
+   ~1/2 of the time: pick from facts still being learned (box < 2),
      weighted toward the ones she struggles with most / has seen least.
    Falls back gracefully when one bucket is empty, and avoids repeating
-   the immediately previous question.
+   any of the last few questions asked when the pool is large enough to.
 ------------------------------------------------------------------- */
 
 function pickNextFact() {
@@ -217,10 +219,12 @@ function pickNextFact() {
     pool = known.length ? known : learning;
   }
 
-  // Avoid immediate repeat when possible.
-  if (pool.length > 1 && lastFactId) {
-    const filtered = pool.filter(id => id !== lastFactId);
-    if (filtered.length) pool = filtered;
+  // Avoid repeating anything asked recently, shrinking the exclusion
+  // window if the pool is too small to honor it fully.
+  for (let window = RECENT_AVOID_WINDOW; window > 0; window--) {
+    const recent = recentFactIds.slice(-window);
+    const filtered = pool.filter(id => !recent.includes(id));
+    if (filtered.length) { pool = filtered; break; }
   }
 
   const weights = pool.map(id => {
@@ -237,7 +241,8 @@ function pickNextFact() {
 
   const id = weightedRandomPick(pool, weights);
   const rec = getFactRecord(id);
-  lastFactId = id;
+  recentFactIds.push(id);
+  if (recentFactIds.length > RECENT_AVOID_WINDOW) recentFactIds.shift();
 
   // Randomize presentation order (a x b vs b x a) for variety.
   const flip = Math.random() < 0.5;

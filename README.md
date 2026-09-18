@@ -15,7 +15,7 @@ rewards.
   - A correct answer moves the fact up a box.
   - A wrong answer moves it down a box.
   - "I don't know" moves it down two boxes (it clearly needs more practice).
-  - A fact counts as **known** once its box reaches 3+.
+  - A fact counts as **known** once its box reaches 2+.
 - **10 levels.** The times table is split into 10 levels, taught in the order
   kids usually find easiest: 1s, 2s, 10s, 5s, 3s, 4s, 6s, 9s, 7s, 8s. Only
   facts from the current (and earlier) levels are ever asked. A level is
@@ -26,11 +26,13 @@ rewards.
   "Level 3 of 10 — 6/8 known — So close! 🌟"), so she always has a concrete,
   visible target to aim for.
 - Within whatever is currently unlocked, questions are picked so that
-  **about 2/3 come from facts she's expected to know** (reviewed with spaced
+  **about half come from facts she's expected to know** (reviewed with spaced
   repetition — the longer since she last saw one, the more likely it's
-  picked, to keep it fresh) and **about 1/3 from facts she's still learning**
-  (weighted toward the ones she struggles with most). This keeps practice
-  mostly encouraging while steadily working on weak spots.
+  picked, to keep it fresh) and **about half from facts she's still learning**
+  (weighted toward the ones she struggles with most), and the app avoids
+  repeating any of the last few questions when the pool is big enough to.
+  This keeps practice varied and mostly encouraging while moving through
+  levels at a reasonable pace.
 - Correct answers earn a star, a streak counter, a burst of confetti, and a
   cheerful message. Getting something wrong or skipping is always gentle —
   it just shows the right answer and quietly queues that fact for more
