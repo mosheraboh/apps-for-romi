@@ -62,6 +62,7 @@ let state = loadState();
 let currentFact = null;   // { id, a, b }
 let lastFactId = null;
 let feedbackTimer = null;
+let stickerToastTimer = null;
 
 function loadState() {
   try {
@@ -403,6 +404,7 @@ function startPractice() {
 }
 
 function nextQuestion() {
+  clearTimeout(stickerToastTimer);
   el.feedback.classList.add('hidden');
   el.questionCard.classList.remove('hidden');
   el.answerInput.value = '';
@@ -447,11 +449,14 @@ function finishQuestion(outcome, correctAnswer) {
     el.feedbackMessage.textContent = pickRandom(CORRECT_MESSAGES);
     el.feedbackAnswer.classList.add('hidden');
     launchConfetti();
-    playSound('correct');
 
     const newSticker = getNewestSticker();
+    let soundKind = 'correct';
+
     if (newSticker && !levelEvent) {
-      setTimeout(() => {
+      soundKind = 'sticker';
+      clearTimeout(stickerToastTimer);
+      stickerToastTimer = setTimeout(() => {
         el.feedbackMessage.textContent = `New sticker unlocked! ${newSticker}`;
       }, 700);
     }
@@ -460,14 +465,18 @@ function finishQuestion(outcome, correctAnswer) {
       el.feedbackEmoji.textContent = '🆙';
       el.feedbackMessage.textContent = `Level ${levelEvent.completedLevel} complete! Level ${levelEvent.newLevel} unlocked! 🎉`;
       launchConfetti();
+      soundKind = 'levelUp';
       delay = 3800;
     } else if (levelEvent && levelEvent.type === 'allComplete') {
       el.feedbackEmoji.textContent = '🏆';
       el.feedbackMessage.textContent = 'You know ALL your times tables! Multiplication Champion! 🏆';
       launchConfetti();
       launchConfetti();
+      soundKind = 'trophy';
       delay = 4200;
     }
+
+    playSound(soundKind);
   } else {
     el.feedbackEmoji.textContent = '💡';
     el.feedbackMessage.textContent = pickRandom(GENTLE_MESSAGES);
@@ -510,26 +519,40 @@ function launchConfetti() {
   }
 }
 
-/* ---------------------------- Sound ---------------------------- */
+/* ---------------------------- Sound ----------------------------
+   Small synthesized chimes (Web Audio, no audio files) so bigger
+   moments feel bigger: a plain correct answer gets a quick 3-note
+   chime, a sticker unlock a brighter twinkle, a level-up a rising
+   4-note fanfare, and finishing all levels a fuller 5-note fanfare.
+------------------------------------------------------------------- */
+
+const SOUND_KINDS = {
+  correct: { type: 'sine', notes: [523.25, 659.25, 783.99], noteDur: 0.09, gain: 0.15 },
+  gentle: { type: 'sine', notes: [392.0, 349.23], noteDur: 0.09, gain: 0.15 },
+  sticker: { type: 'triangle', notes: [783.99, 987.77, 1174.66], noteDur: 0.08, gain: 0.14 },
+  levelUp: { type: 'triangle', notes: [523.25, 659.25, 783.99, 1046.5], noteDur: 0.12, gain: 0.18 },
+  trophy: { type: 'triangle', notes: [523.25, 659.25, 783.99, 1046.5, 1318.51], noteDur: 0.14, gain: 0.19 },
+};
 
 let audioCtx = null;
 function playSound(kind) {
   if (state.settings.sound !== 'on') return;
+  const spec = SOUND_KINDS[kind] || SOUND_KINDS.correct;
   try {
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     const now = audioCtx.currentTime;
-    const notes = kind === 'correct' ? [523.25, 659.25, 783.99] : [392.0, 349.23];
-    notes.forEach((freq, i) => {
+    spec.notes.forEach((freq, i) => {
+      const start = now + i * spec.noteDur;
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      osc.type = 'sine';
+      osc.type = spec.type;
       osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.001, now + i * 0.09);
-      gain.gain.exponentialRampToValueAtTime(0.15, now + i * 0.09 + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.22);
+      gain.gain.setValueAtTime(0.001, start);
+      gain.gain.exponentialRampToValueAtTime(spec.gain, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + spec.noteDur * 2.2);
       osc.connect(gain).connect(audioCtx.destination);
-      osc.start(now + i * 0.09);
-      osc.stop(now + i * 0.09 + 0.24);
+      osc.start(start);
+      osc.stop(start + spec.noteDur * 2.4);
     });
   } catch (e) { /* audio not available; ignore */ }
 }

@@ -42,6 +42,10 @@ rewards.
 - A lightweight settings screen (behind a simple grown-up math check) lets
   you change the table range (5, 10, or 12 — the level count adjusts
   automatically for smaller ranges), toggle sound, or reset progress.
+- Small celebratory sound chimes (synthesized in-browser, no audio files)
+  play on a correct answer, with bigger, distinct fanfares for unlocking a
+  sticker, completing a level, and finishing all 10 levels. Sound can be
+  turned off in settings.
 
 All progress is saved locally in the browser via `localStorage` — nothing
 leaves the Mac, no account or internet connection needed.
