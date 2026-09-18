@@ -2,9 +2,19 @@
 
 /* ---------------------------------------------------------------------
    Let's Count!
-   A local, offline counting practice app for a young learner:
-   - Shows a picture of N objects and asks "how many?"; she types the
-     number (no reading required beyond digits).
+   A local, offline counting practice app for a young learner. Each round
+   asks about one number (1-20), but the QUESTION FORMAT rotates across
+   six mini-games so it doesn't get repetitive — the underlying mastery
+   tracking, level-gating, and rewards are shared by all of them:
+   - Type the count / Multiple choice: classic "how many?" (typed or tapped)
+   - Match: given a numeral, tap the picture group with that many items
+   - Sequence: given a short run of numbers, tap what's missing
+   - Compare: given two piles, tap the one with more
+   - Feed the monster: tap exactly N snacks, then confirm
+   None of the games require reading — each communicates its task through
+   layout and icons (a blank "❓" tile, a monster with an order ticket, two
+   piles side by side) since the child can't yet read Hebrew sentences.
+   All interaction is mouse/keyboard only (no touchscreen).
    - Tracks mastery per number 1-20 using a Leitner-style box (0-5).
    - Mixes ~2/3 practice from numbers she's expected to know with
      ~1/3 from numbers she's still learning (spaced repetition).
@@ -26,6 +36,7 @@ const MAX_BOX = 5;
 const KNOWN_PICK_RATIO = 2 / 3;
 
 const ICON_SET = ['🍎','🌟','🎈','🧸','🍓','🐰','🦋','🍩','🌼','🐠','🍭','🎁','🍪','🐝','🌈','🐬','🍉','🐥','🦕','🐧'];
+const SNACK_ICONS = ['🍎','🍓','🍩','🍭','🍪','🍉'];
 
 const STICKER_SET = ['🧸','🎈','🍭','🦄','🐣','🍓','🎨','🚀','🌈','🐬','🍩','🐥','🌻','🦕','🍉','🎪','🐧','🥳','🎁','🐝'];
 const STICKER_MILESTONES = [5, 10, 20, 35, 50, 75, 100, 150, 200, 300, 400, 500, 650, 800, 1000, 1200, 1500, 1800, 2200, 2600];
@@ -41,6 +52,8 @@ const GENTLE_MESSAGES = [
   "אין דבר — בפעם הבאה יהיה לך! 🌟",
   "כמעט! בואי נמשיך לתרגל. 🌱"
 ];
+
+const GAME_MODES = ['type', 'choice', 'match', 'sequence', 'compare', 'feed'];
 
 const SOUND_KINDS = {
   correct: { type: 'sine', notes: [523.25, 659.25, 783.99], noteDur: 0.09, gain: 0.15 },
@@ -70,10 +83,14 @@ function defaultState() {
 
 let state = loadState();
 let currentTarget = null;   // the number currently being asked
+let currentMode = null;     // which mini-game is active this round
 let lastTarget = null;
+let lastMode = null;
 let feedbackTimer = null;
 let stickerToastTimer = null;
 let tickTimers = [];
+let compareLeftCount = 0;
+let compareRightCount = 0;
 
 function loadState() {
   try {
@@ -202,6 +219,17 @@ function pickNextTarget() {
   return n;
 }
 
+function pickGameMode() {
+  let candidates = GAME_MODES;
+  if (lastMode !== null && candidates.length > 1) {
+    const filtered = candidates.filter(m => m !== lastMode);
+    if (filtered.length) candidates = filtered;
+  }
+  const mode = candidates[Math.floor(Math.random() * candidates.length)];
+  lastMode = mode;
+  return mode;
+}
+
 function weightedRandomPick(items, weights) {
   const total = weights.reduce((s, w) => s + w, 0);
   let r = Math.random() * total;
@@ -210,6 +238,44 @@ function weightedRandomPick(items, weights) {
     if (r <= 0) return items[i];
   }
   return items[items.length - 1];
+}
+
+// Picks `count` distinct numbers near `target` (from the full 1-20 range,
+// not just the unlocked pool — they're only used as multiple-choice
+// decoys, not as something she needs to have practiced yet).
+function pickDecoys(target, count) {
+  const candidates = [];
+  for (let i = 1; i <= TOTAL_NUMBERS; i++) if (i !== target) candidates.push(i);
+  const weights = candidates.map(c => 1 / (1 + Math.abs(c - target)));
+  const chosen = [];
+  const pool = [...candidates];
+  const w = [...weights];
+  for (let k = 0; k < count && pool.length; k++) {
+    const idx = weightedIndexPick(w);
+    chosen.push(pool[idx]);
+    pool.splice(idx, 1);
+    w.splice(idx, 1);
+  }
+  return chosen;
+}
+
+function weightedIndexPick(weights) {
+  const total = weights.reduce((s, w) => s + w, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < weights.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return i;
+  }
+  return weights.length - 1;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 /* ------------------------ Answer handling ------------------------ */
@@ -271,10 +337,37 @@ const el = {
 
   practiceScreen: document.getElementById('practiceScreen'),
   questionCard: document.getElementById('questionCard'),
+
+  modeType: document.getElementById('modeType'),
   iconLabel: document.getElementById('iconLabel'),
   countScene: document.getElementById('countScene'),
   answerInput: document.getElementById('answerInput'),
   submitBtn: document.getElementById('submitBtn'),
+
+  modeChoice: document.getElementById('modeChoice'),
+  choiceScene: document.getElementById('choiceScene'),
+  choiceButtons: document.getElementById('choiceButtons'),
+
+  modeMatch: document.getElementById('modeMatch'),
+  matchTargetNumeral: document.getElementById('matchTargetNumeral'),
+  matchCards: document.getElementById('matchCards'),
+
+  modeSequence: document.getElementById('modeSequence'),
+  sequenceTiles: document.getElementById('sequenceTiles'),
+  sequenceButtons: document.getElementById('sequenceButtons'),
+
+  modeCompare: document.getElementById('modeCompare'),
+  compareLeft: document.getElementById('compareLeft'),
+  compareRight: document.getElementById('compareRight'),
+  compareLeftScene: document.getElementById('compareLeftScene'),
+  compareRightScene: document.getElementById('compareRightScene'),
+
+  modeFeed: document.getElementById('modeFeed'),
+  monsterOrder: document.getElementById('monsterOrder'),
+  feedTray: document.getElementById('feedTray'),
+  feedCount: document.getElementById('feedCount'),
+  feedDoneBtn: document.getElementById('feedDoneBtn'),
+
   dontKnowBtn: document.getElementById('dontKnowBtn'),
   feedback: document.getElementById('feedback'),
   feedbackEmoji: document.getElementById('feedbackEmoji'),
@@ -305,6 +398,8 @@ const el = {
   resetConfirmHint: document.getElementById('resetConfirmHint'),
   backFromSettingsBtn: document.getElementById('backFromSettingsBtn'),
 };
+
+const modePanels = [el.modeType, el.modeChoice, el.modeMatch, el.modeSequence, el.modeCompare, el.modeFeed];
 
 const screens = [el.startScreen, el.practiceScreen, el.progressScreen, el.settingsScreen];
 
@@ -365,6 +460,15 @@ const ICON_NAMES = {
   '🐬':'דולפינים','🍉':'אבטיחים','🐥':'אפרוחים','🦕':'דינוזאורים','🐧':'פינגווינים'
 };
 
+const RENDERERS = {
+  type: renderTypeMode,
+  choice: renderChoiceMode,
+  match: renderMatchMode,
+  sequence: renderSequenceMode,
+  compare: renderCompareMode,
+  feed: renderFeedMode,
+};
+
 function nextQuestion() {
   clearTimeout(stickerToastTimer);
   tickTimers.forEach(t => clearTimeout(t));
@@ -372,51 +476,199 @@ function nextQuestion() {
 
   el.feedback.classList.add('hidden');
   el.questionCard.classList.remove('hidden');
-  el.answerInput.value = '';
-  el.answerInput.disabled = false;
-  el.submitBtn.disabled = false;
   el.dontKnowBtn.disabled = false;
+  el.dontKnowBtn.classList.remove('hidden');
+
+  modePanels.forEach(p => p.classList.add('hidden'));
 
   currentTarget = pickNextTarget();
-  const icon = pickRandom(ICON_SET);
-  el.iconLabel.textContent = ICON_NAMES[icon] || 'דברים';
-
-  renderCountScene(icon, currentTarget);
-  el.answerInput.focus();
+  currentMode = pickGameMode();
+  RENDERERS[currentMode](currentTarget);
 }
 
-function renderCountScene(icon, count) {
-  el.countScene.innerHTML = '';
-  const size = count <= 6 ? 48 : count <= 12 ? 38 : 28;
+function renderCountScene(container, icon, count, compact) {
+  container.innerHTML = '';
+  const size = compact
+    ? (count <= 6 ? 30 : count <= 12 ? 24 : 18)
+    : (count <= 6 ? 48 : count <= 12 ? 38 : 28);
   for (let i = 0; i < count; i++) {
     const span = document.createElement('span');
     span.className = 'count-icon';
     span.textContent = icon;
     span.style.fontSize = size + 'px';
-    span.style.animationDelay = (i * 0.07) + 's';
-    el.countScene.appendChild(span);
+    span.style.animationDelay = (i * 0.05) + 's';
+    container.appendChild(span);
+  }
+}
+
+function scheduleTicks(count) {
+  for (let i = 0; i < count; i++) {
     const t = setTimeout(() => playSound('tick'), i * 70);
     tickTimers.push(t);
   }
+}
+
+function makeChoiceButtons(container, target, onPick) {
+  const decoys = pickDecoys(target, 2);
+  const options = shuffle([target, ...decoys]);
+  container.innerHTML = '';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => onPick(opt));
+    container.appendChild(btn);
+  });
+}
+
+/* --- Mode: type the count (typed number, keyboard-first) --- */
+function renderTypeMode(target) {
+  el.modeType.classList.remove('hidden');
+  el.answerInput.value = '';
+  el.answerInput.disabled = false;
+  el.submitBtn.disabled = false;
+  const icon = pickRandom(ICON_SET);
+  el.iconLabel.textContent = ICON_NAMES[icon] || 'דברים';
+  renderCountScene(el.countScene, icon, target);
+  scheduleTicks(target);
+  el.answerInput.focus();
 }
 
 function submitAnswer() {
   const raw = el.answerInput.value.trim();
   if (raw === '') { el.answerInput.focus(); return; }
   const given = Number(raw);
-  finishQuestion(given === currentTarget ? 'correct' : 'wrong');
+  answerRound(given === currentTarget ? 'correct' : 'wrong');
+}
+
+/* --- Mode: multiple choice count (tap the right numeral) --- */
+function renderChoiceMode(target) {
+  el.modeChoice.classList.remove('hidden');
+  const icon = pickRandom(ICON_SET);
+  renderCountScene(el.choiceScene, icon, target);
+  scheduleTicks(target);
+  makeChoiceButtons(el.choiceButtons, target, (opt) => {
+    answerRound(opt === target ? 'correct' : 'wrong');
+  });
+}
+
+/* --- Mode: match a numeral to the picture group with that many --- */
+function renderMatchMode(target) {
+  el.modeMatch.classList.remove('hidden');
+  el.matchTargetNumeral.textContent = target;
+  const decoys = pickDecoys(target, 2);
+  const cardCounts = shuffle([target, ...decoys]);
+  const icons = shuffle(ICON_SET).slice(0, 3);
+  el.matchCards.innerHTML = '';
+  cardCounts.forEach((count, i) => {
+    const card = document.createElement('button');
+    card.className = 'match-card';
+    const scene = document.createElement('div');
+    scene.className = 'count-scene mini';
+    card.appendChild(scene);
+    card.addEventListener('click', () => answerRound(count === target ? 'correct' : 'wrong'));
+    el.matchCards.appendChild(card);
+    renderCountScene(scene, icons[i], count, true);
+  });
+}
+
+/* --- Mode: what comes next (sequence with a blank tile) --- */
+function renderSequenceMode(target) {
+  el.modeSequence.classList.remove('hidden');
+  const tiles = target >= 3
+    ? [target - 2, target - 1, null]
+    : [null, target + 1, target + 2];
+
+  el.sequenceTiles.innerHTML = '';
+  tiles.forEach(v => {
+    const tile = document.createElement('div');
+    tile.className = v === null ? 'sequence-tile blank' : 'sequence-tile';
+    tile.textContent = v === null ? '❓' : v;
+    el.sequenceTiles.appendChild(tile);
+  });
+
+  makeChoiceButtons(el.sequenceButtons, target, (opt) => {
+    answerRound(opt === target ? 'correct' : 'wrong');
+  });
+}
+
+/* --- Mode: which has more (compare two piles) --- */
+function renderCompareMode(target) {
+  el.modeCompare.classList.remove('hidden');
+  // compareLeft/compareRight are fixed elements reused every round (only
+  // their inner scene is rebuilt), so — unlike the other modes' buttons,
+  // which are freshly created each round — they must be re-enabled here.
+  el.compareLeft.disabled = false;
+  el.compareRight.disabled = false;
+  const deltaOptions = [-3, -2, -1, 1, 2, 3].filter(d => target + d >= 1 && target + d <= TOTAL_NUMBERS);
+  const delta = pickRandom(deltaOptions);
+  const other = target + delta;
+  const targetOnRight = Math.random() < 0.5;
+  compareRightCount = targetOnRight ? target : other;
+  compareLeftCount = targetOnRight ? other : target;
+
+  const rightIcon = pickRandom(ICON_SET);
+  let leftIcon = pickRandom(ICON_SET);
+  while (leftIcon === rightIcon) leftIcon = pickRandom(ICON_SET);
+
+  renderCountScene(el.compareRightScene, rightIcon, compareRightCount, true);
+  renderCountScene(el.compareLeftScene, leftIcon, compareLeftCount, true);
+
+  const rightWins = compareRightCount > compareLeftCount;
+  el.compareRight.onclick = () => answerRound(rightWins ? 'correct' : 'wrong');
+  el.compareLeft.onclick = () => answerRound(!rightWins ? 'correct' : 'wrong');
+}
+
+/* --- Mode: feed the monster exactly N snacks --- */
+function renderFeedMode(target) {
+  el.modeFeed.classList.remove('hidden');
+  el.feedDoneBtn.disabled = false; // fixed element reused every round
+  el.monsterOrder.textContent = target;
+
+  const extra = 2 + Math.floor(Math.random() * 3);
+  const totalSnacks = Math.min(target + extra, TOTAL_NUMBERS + 4);
+  const snackIcon = pickRandom(SNACK_ICONS);
+
+  el.feedTray.innerHTML = '';
+  let fedCount = 0;
+  el.feedCount.textContent = fedCount;
+
+  for (let i = 0; i < totalSnacks; i++) {
+    const snack = document.createElement('button');
+    snack.className = 'feed-snack';
+    snack.textContent = snackIcon;
+    snack.addEventListener('click', () => {
+      const isFed = snack.classList.toggle('fed');
+      fedCount += isFed ? 1 : -1;
+      el.feedCount.textContent = fedCount;
+      playSound('tick');
+    });
+    el.feedTray.appendChild(snack);
+  }
+
+  el.feedDoneBtn.onclick = () => {
+    answerRound(fedCount === target ? 'correct' : 'wrong');
+  };
 }
 
 function submitDontKnow() {
-  finishQuestion('dontknow');
+  answerRound('dontknow');
 }
 
-function finishQuestion(outcome) {
-  el.answerInput.disabled = true;
-  el.submitBtn.disabled = true;
+function disableActivePanel() {
+  modePanels.forEach(p => {
+    if (!p.classList.contains('hidden')) {
+      p.querySelectorAll('button, input').forEach(elm => { elm.disabled = true; });
+    }
+  });
   el.dontKnowBtn.disabled = true;
+}
+
+function answerRound(outcome) {
+  disableActivePanel();
 
   const target = currentTarget;
+  const mode = currentMode;
   const levelEvent = recordAnswer(target, outcome);
   refreshHeader();
 
@@ -461,7 +713,16 @@ function finishQuestion(outcome) {
   } else {
     el.feedbackEmoji.textContent = '💡';
     el.feedbackMessage.textContent = pickRandom(GENTLE_MESSAGES);
-    el.feedbackAnswer.textContent = `יש ${target}!`;
+
+    if (mode === 'compare') {
+      const rightBigger = compareRightCount > compareLeftCount;
+      el.feedbackAnswer.innerHTML =
+        `<span class="${rightBigger ? 'compare-winner' : ''}">${compareRightCount}</span>` +
+        ` ⚖️ ` +
+        `<span class="${!rightBigger ? 'compare-winner' : ''}">${compareLeftCount}</span>`;
+    } else {
+      el.feedbackAnswer.textContent = `יש ${target}!`;
+    }
     el.feedbackAnswer.classList.remove('hidden');
     el.feedback.classList.add('shake');
     setTimeout(() => el.feedback.classList.remove('shake'), 400);
@@ -664,19 +925,15 @@ el.resetProgressBtn.addEventListener('click', () => {
 el.backFromSettingsBtn.addEventListener('click', () => { refreshStartHint(); showScreen(el.startScreen); el.startBtn.focus(); });
 
 /* ---------------------------- Keyboard-first flow ----------------------------
-   The core loop (type an answer, submit, see feedback, move on) should work
-   without ever reaching for the mouse: typing a digit anywhere on the
-   question screen jumps focus into the answer box, Enter submits or —
-   once feedback is showing — jumps straight to the next question instead
-   of waiting for the auto-advance timer.
+   Only the "type" mode has a text box, so keyboard typing/Enter-to-submit
+   only applies there; the other modes are mouse-driven mini-games (there's
+   no touchscreen, so a mouse click is the natural input for tapping a
+   button, a picture card, or a snack). Enter/Space to advance once
+   feedback is showing, and to start from the title screen, work in every
+   mode since that part of the flow looks the same regardless of mode.
 ------------------------------------------------------------------- */
 
 document.addEventListener('keydown', (e) => {
-  // The answer input owns its own Enter/typing handling. Bail out first,
-  // before re-reading any DOM state — otherwise this same event, still
-  // bubbling after the input's own listener has already (synchronously)
-  // shown the feedback panel, gets misread as "feedback just appeared,
-  // advance now" and immediately undoes what was just shown.
   if (e.target === el.answerInput) return;
 
   if (el.startScreen && !el.startScreen.classList.contains('hidden')) {
@@ -698,6 +955,8 @@ document.addEventListener('keydown', (e) => {
     }
     return;
   }
+
+  if (currentMode !== 'type') return;
 
   if (/^[0-9]$/.test(e.key)) {
     el.answerInput.focus();

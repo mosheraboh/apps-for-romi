@@ -205,6 +205,19 @@ h1 {
   margin-bottom: 14px;
 }
 
+.prompt-text.small-caption {
+  font-size: 16px;
+  font-weight: 700;
+  opacity: 0.65;
+  margin-bottom: 10px;
+}
+
+.prompt-mark { font-size: 1.1em; }
+
+.mode-panel { width: 100%; }
+
+#dontKnowBtn { margin-top: 18px; }
+
 .count-scene {
   display: flex;
   flex-wrap: wrap;
@@ -251,6 +264,198 @@ h1 {
   gap: 14px;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+/* --- Multiple choice / sequence: big tappable numeral buttons --- */
+.choice-row {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.choice-btn {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: none;
+  background: white;
+  color: var(--orange-dark);
+  font-size: 32px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 6px 0 rgba(0,0,0,0.1);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.choice-btn:hover { background: var(--bg1); }
+.choice-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.1); }
+
+/* --- Match: big target numeral + tappable picture cards --- */
+.match-target {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 18px auto;
+  border-radius: 50%;
+  background: white;
+  color: var(--orange-dark);
+  font-size: 52px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+.match-row {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.match-card {
+  background: white;
+  border: 3px solid transparent;
+  border-radius: 16px;
+  padding: 8px;
+  cursor: pointer;
+  min-width: 96px;
+  min-height: 76px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  transition: border-color 0.12s ease, transform 0.12s ease;
+}
+.match-card:hover { border-color: var(--orange); transform: translateY(-2px); }
+
+.count-scene.mini {
+  min-height: 60px;
+  padding: 4px;
+  margin-bottom: 0;
+  background: transparent;
+  gap: 3px;
+}
+
+/* --- Sequence: numeral tiles with one blank "?" tile --- */
+.sequence-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.sequence-tile {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--orange-dark);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.sequence-tile.blank {
+  border: 3px dashed var(--orange);
+  background: var(--bg1);
+  color: var(--orange);
+}
+
+/* --- Compare: two tappable piles side by side --- */
+.compare-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.compare-side {
+  flex: 1;
+  max-width: 220px;
+  background: white;
+  border: 3px solid transparent;
+  border-radius: 18px;
+  padding: 10px;
+  cursor: pointer;
+  transition: border-color 0.12s ease, transform 0.12s ease;
+}
+.compare-side:hover { border-color: var(--orange); transform: translateY(-2px); }
+
+.compare-vs {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--orange-dark);
+  opacity: 0.7;
+}
+
+.compare-winner {
+  font-size: 1.4em;
+  color: #D97706;
+  font-weight: 900;
+}
+
+/* --- Feed the monster --- */
+.feed-monster {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.monster-face {
+  font-size: 76px;
+  animation: bob 2.4s ease-in-out infinite;
+}
+
+.monster-ticket {
+  display: inline-block;
+  background: white;
+  border-radius: 12px;
+  padding: 6px 18px;
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--orange-dark);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  margin-top: -8px;
+}
+
+.feed-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  max-width: 440px;
+  margin: 16px auto;
+}
+
+.feed-snack {
+  font-size: 34px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.feed-snack:hover { transform: scale(1.12); }
+.feed-snack.fed { opacity: 0.25; transform: scale(0.75); }
+
+.feed-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.feed-count-badge {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--orange-dark);
+  background: white;
+  border-radius: 12px;
+  padding: 6px 18px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
 }
 
 .feedback {
@@ -443,4 +648,8 @@ h1 {
   .answer-input { font-size: 32px; width: 120px; }
   .number-grid { grid-template-columns: repeat(5, 1fr); }
   .number-cell { font-size: 15px; }
+  .choice-btn { width: 62px; height: 62px; font-size: 26px; }
+  .match-target { width: 80px; height: 80px; font-size: 40px; }
+  .sequence-tile { width: 52px; height: 52px; font-size: 22px; }
+  .compare-side { max-width: 150px; }
 }

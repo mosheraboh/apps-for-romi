@@ -40,7 +40,7 @@
     <section id="startScreen" class="screen">
       <div class="mascot">🧸</div>
       <h1>בואי נספור ביחד!</h1>
-      <p class="subtitle">תסתכלי בתמונה, ואז תקלידי כמה יש!</p>
+      <p class="subtitle">כמה משחקי ספירה שונים מחכים לך!</p>
       <button id="startBtn" class="big-btn primary">בואי נתחיל! 🚀</button>
       <p class="tiny-hint" id="startHint"></p>
     </section>
@@ -48,15 +48,62 @@
     <!-- PRACTICE SCREEN -->
     <section id="practiceScreen" class="screen hidden">
       <div class="question-card" id="questionCard">
-        <div class="prompt-text">כמה <span id="iconLabel">כוכבים</span> יש?</div>
-        <div class="count-scene" id="countScene"></div>
-        <div class="answer-row">
-          <input type="number" inputmode="numeric" id="answerInput" class="answer-input" placeholder="?" autocomplete="off">
-        </div>
-        <div class="button-row">
+
+        <!-- MODE: type the count -->
+        <div id="modeType" class="mode-panel hidden">
+          <div class="prompt-text">כמה <span id="iconLabel">כוכבים</span>? <span class="prompt-mark">❓</span></div>
+          <div class="count-scene" id="countScene"></div>
+          <div class="answer-row">
+            <input type="number" inputmode="numeric" id="answerInput" class="answer-input" placeholder="?" autocomplete="off">
+          </div>
           <button id="submitBtn" class="big-btn primary">בדיקה ✅</button>
-          <button id="dontKnowBtn" class="big-btn secondary">לא בטוחה? 🤔</button>
         </div>
+
+        <!-- MODE: multiple choice count -->
+        <div id="modeChoice" class="mode-panel hidden">
+          <div class="prompt-text small-caption">כמה יש? <span class="prompt-mark">❓</span></div>
+          <div class="count-scene" id="choiceScene"></div>
+          <div class="choice-row" id="choiceButtons"></div>
+        </div>
+
+        <!-- MODE: match numeral to picture group -->
+        <div id="modeMatch" class="mode-panel hidden">
+          <div class="prompt-text small-caption">איפה יש כל כך הרבה? 👉</div>
+          <div class="match-target" id="matchTargetNumeral">3</div>
+          <div class="match-row" id="matchCards"></div>
+        </div>
+
+        <!-- MODE: what comes next (sequence) -->
+        <div id="modeSequence" class="mode-panel hidden">
+          <div class="prompt-text small-caption">מה חסר?</div>
+          <div class="sequence-row" id="sequenceTiles"></div>
+          <div class="choice-row" id="sequenceButtons"></div>
+        </div>
+
+        <!-- MODE: which has more -->
+        <div id="modeCompare" class="mode-panel hidden">
+          <div class="prompt-text small-caption">איפה יש יותר? ⚖️</div>
+          <div class="compare-row">
+            <button class="compare-side" id="compareRight"><div class="count-scene mini" id="compareRightScene"></div></button>
+            <div class="compare-vs">מול</div>
+            <button class="compare-side" id="compareLeft"><div class="count-scene mini" id="compareLeftScene"></div></button>
+          </div>
+        </div>
+
+        <!-- MODE: feed the monster -->
+        <div id="modeFeed" class="mode-panel hidden">
+          <div class="feed-monster">
+            <div class="monster-face">👹</div>
+            <div class="monster-ticket">🎫 <span id="monsterOrder">3</span></div>
+          </div>
+          <div class="feed-tray" id="feedTray"></div>
+          <div class="feed-status">
+            <div class="feed-count-badge">🍽️ <span id="feedCount">0</span></div>
+            <button id="feedDoneBtn" class="big-btn primary">סיימתי להאכיל! ✅</button>
+          </div>
+        </div>
+
+        <button id="dontKnowBtn" class="big-btn secondary">לא בטוחה? 🤔</button>
       </div>
 
       <div id="feedback" class="feedback hidden">

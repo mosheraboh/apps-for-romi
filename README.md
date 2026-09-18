@@ -93,17 +93,35 @@ multiplication-table/
 ## Let's Count!
 
 A Mac app for a 4-year-old learning to count — same idea as Romi's Times
-Tables, adapted for a younger learner: she sees a picture of some objects
-and types how many there are, no reading required beyond digits.
+Tables, adapted for a younger learner: no reading required (beyond
+recognizing numerals, which is the point), and every interaction is a
+mouse click or typed digit — no touchscreen needed.
 
 ### How it works
 
-- Each question shows a group of pictures (apples, stars, balloons, and
-  more — a random one each time) and asks how many there are. She types
-  the number, or clicks **"לא בטוחה? 🤔"** ("Not sure?") to see the answer.
-- The icons pop in one at a time with a little bounce (and a soft tick
-  sound), so watching them appear reinforces counting rhythmically,
-  1-2-3‑style, rather than just showing a static pile.
+- Each round asks about one number, but which **mini-game** asks it
+  rotates every round so it doesn't get repetitive:
+  - **Type the count** — a group of pictures appears; she types how many.
+  - **Multiple choice** — same picture group, but she taps the matching
+    numeral instead of typing.
+  - **Match** — a big numeral appears; she taps the picture group that has
+    that many items (among 3 choices).
+  - **What comes next** — a short run of numbers with one blank "❓" tile;
+    she taps the numeral that belongs there.
+  - **Which has more** — two piles of pictures side by side; she taps the
+    bigger one.
+  - **Feed the monster** — a hungry monster's order ticket shows a
+    numeral; she taps exactly that many snacks from a tray, then confirms.
+  None of these rely on reading a sentence — each communicates its task
+  through layout and icons alone (a blank tile, a monster with a ticket,
+  two piles side by side), with a short Hebrew caption underneath as a
+  bonus for a parent reading along.
+- She can always click **"לא בטוחה? 🤔"** ("Not sure?") in any game to see
+  the answer.
+- In "type the count," the icons pop in one at a time with a little
+  bounce (and a soft tick sound), so watching them appear reinforces
+  counting rhythmically, 1-2-3‑style, rather than just showing a static
+  pile.
 - Counting 1–20 is tracked number-by-number with the same 0–5 mastery
   "box" system as Romi's app (correct moves it up, a miss moves it down,
   "not sure" moves it down two), and a number counts as **known** once its
