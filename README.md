@@ -79,3 +79,68 @@ multiplication-table/
   app.js                         game logic: fact tracking, selection, rewards
   Start Romi's Math App.command  double-click launcher
 ```
+
+## Let's Count!
+
+A Mac app for a 4-year-old learning to count — same idea as Romi's Times
+Tables, adapted for a younger learner: she sees a picture of some objects
+and types how many there are, no reading required beyond digits.
+
+### How it works
+
+- Each question shows a group of pictures (apples, stars, balloons, and
+  more — a random one each time) and asks "How many are there?" She types
+  the number, or taps **"Not sure? 🤔"** to see the answer.
+- The icons pop in one at a time with a little bounce (and a soft tick
+  sound), so watching them appear reinforces counting rhythmically,
+  1-2-3‑style, rather than just showing a static pile.
+- Counting 1–20 is tracked number-by-number with the same 0–5 mastery
+  "box" system as Romi's app (correct moves it up, a miss moves it down,
+  "not sure" moves it down two), and a number counts as **known** once its
+  box reaches 3+.
+- **10 levels**, unlocked two numbers at a time: Level 1 is just 1 and 2,
+  Level 2 adds 3 and 4, and so on up to Level 10 (19 and 20). Only numbers
+  from unlocked levels are ever asked, and completing a level (both its
+  numbers known) unlocks the next with a celebration.
+- **A global progress bar**, always visible at the top, shows exactly how
+  close she is to finishing her current level (e.g. "Level 4 of 10 — 1/2
+  known — So close! 🌟").
+- Within what's unlocked, questions are mixed **about 2/3 from numbers
+  she's expected to know** (spaced repetition — longer since last seen
+  means more likely to come up again) and **about 1/3 from numbers she's
+  still learning**, so practice stays mostly encouraging while steadily
+  reinforcing weak spots.
+- Correct answers earn a star, a streak, confetti, and a cheerful message;
+  a miss or "not sure" is always gentle — it just reveals the number and
+  quietly queues it for more practice.
+- Star milestones unlock stickers for a sticker book, and distinct sound
+  fanfares mark a sticker, a level-up, and finishing all 10 levels (sound
+  can be turned off in settings).
+- A progress screen shows a level-by-level checklist and a 1–20 number
+  grid (locked / new / learning / known / mastered), plus totals and best
+  streak.
+- A lightweight settings screen (behind a simple grown-up addition check)
+  lets you toggle sound or reset progress.
+
+All progress is saved locally in the browser via `localStorage`.
+
+### Running it on the Mac
+
+Same as Romi's app — it's an offline web app, not a compiled `.app`.
+
+1. Double-click **`Start Counting App.command`** inside the `counting-app`
+   folder (right-click → **Open** the first time, to get past Gatekeeper —
+   or just double-click `index.html` directly to skip the launcher
+   entirely).
+2. It opens in Safari. Use **File → Add to Dock** there to give it its own
+   Dock icon and window.
+
+### Files
+
+```
+counting-app/
+  index.html                  the app UI
+  style.css                   styling/animations
+  app.js                      game logic: number tracking, selection, rewards
+  Start Counting App.command  double-click launcher
+```
