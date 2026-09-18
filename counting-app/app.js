@@ -31,15 +31,15 @@ const STICKER_SET = ['🧸','🎈','🍭','🦄','🐣','🍓','🎨','🚀','�
 const STICKER_MILESTONES = [5, 10, 20, 35, 50, 75, 100, 150, 200, 300, 400, 500, 650, 800, 1000, 1200, 1500, 1800, 2200, 2600];
 
 const CORRECT_MESSAGES = [
-  "Yay! You counted them all! 🎉", "You're a counting star! ⭐", "Super job! 🙌", "Wow, so fast! ⚡",
-  "You got it! 🎯", "Fantastic counting! 🌈", "Great job! 🧠", "Yes! Perfect! ✨"
+  "כן! ספרת נכון! 🎉", "את כוכבת בספירה! ⭐", "כל הכבוד! 🙌", "וואו, כל כך מהר! ⚡",
+  "הצלחת! 🎯", "ספירה נהדרת! 🌈", "איזו ילדה חכמה! 🧠", "כן! מושלם! ✨"
 ];
 
 const GENTLE_MESSAGES = [
-  "That's okay! Let's count them again. 💪",
-  "Good try! Let's remember this one. 💡",
-  "No worries — you'll get it next time! 🌟",
-  "Almost! Let's keep practicing. 🌱"
+  "זה בסדר! בואי נספור שוב. 💪",
+  "ניסיון טוב! בואי נזכור את זה. 💡",
+  "אין דבר — בפעם הבאה יהיה לך! 🌟",
+  "כמעט! בואי נמשיך לתרגל. 🌱"
 ];
 
 const SOUND_KINDS = {
@@ -324,20 +324,20 @@ function refreshHeader() {
 function refreshLevelBar() {
   const d = levelProgressData();
   el.levelBadge.textContent = d.done
-    ? `All ${d.levelCount} levels complete! 🏆`
-    : `Level ${d.level} of ${d.levelCount}`;
-  el.levelProgressText.textContent = `${d.known}/${d.total} known`;
+    ? `כל ${d.levelCount} השלבים הושלמו! 🏆`
+    : `שלב ${d.level} מתוך ${d.levelCount}`;
+  el.levelProgressText.textContent = `${d.known}/${d.total} ידועים`;
   el.levelProgressFill.style.width = d.percent + '%';
   el.levelProgressHint.textContent = levelHintText(d.percent, d.done);
 }
 
 function levelHintText(percent, done) {
-  if (done) return "She's a Counting Champion! 🏆";
-  if (percent >= 100) return 'Level complete! 🎉';
-  if (percent >= 75) return 'So close! 🌟';
-  if (percent >= 50) return 'Halfway there! 💪';
-  if (percent >= 25) return 'Making progress! 🚀';
-  return 'Just getting started! 🌱';
+  if (done) return 'היא אלופת הספירה! 🏆';
+  if (percent >= 100) return 'השלב הושלם! 🎉';
+  if (percent >= 75) return 'כמעט שם! 🌟';
+  if (percent >= 50) return 'באמצע הדרך! 💪';
+  if (percent >= 25) return 'מתקדמת יפה! 🚀';
+  return 'רק מתחילות! 🌱';
 }
 
 /* ---------------------------- Start screen ---------------------------- */
@@ -347,7 +347,7 @@ function refreshStartHint() {
     el.startHint.textContent = '';
   } else {
     const knownCount = allNumbers().filter(n => isKnown(getNumberRecord(n))).length;
-    el.startHint.textContent = `You know ${knownCount} of ${TOTAL_NUMBERS} numbers so far!`;
+    el.startHint.textContent = `את כבר יודעת ${knownCount} מתוך ${TOTAL_NUMBERS} מספרים!`;
   }
 }
 
@@ -359,10 +359,10 @@ function startPractice() {
 }
 
 const ICON_NAMES = {
-  '🍎':'apples','🌟':'stars','🎈':'balloons','🧸':'teddy bears','🍓':'strawberries',
-  '🐰':'bunnies','🦋':'butterflies','🍩':'donuts','🌼':'flowers','🐠':'fish',
-  '🍭':'lollipops','🎁':'presents','🍪':'cookies','🐝':'bees','🌈':'rainbows',
-  '🐬':'dolphins','🍉':'watermelons','🐥':'chicks','🦕':'dinosaurs','🐧':'penguins'
+  '🍎':'תפוחים','🌟':'כוכבים','🎈':'בלונים','🧸':'דובונים','🍓':'תותים',
+  '🐰':'ארנבים','🦋':'פרפרים','🍩':'סופגניות','🌼':'פרחים','🐠':'דגים',
+  '🍭':'סוכריות','🎁':'מתנות','🍪':'עוגיות','🐝':'דבורים','🌈':'קשתות',
+  '🐬':'דולפינים','🍉':'אבטיחים','🐥':'אפרוחים','🦕':'דינוזאורים','🐧':'פינגווינים'
 };
 
 function nextQuestion() {
@@ -379,7 +379,7 @@ function nextQuestion() {
 
   currentTarget = pickNextTarget();
   const icon = pickRandom(ICON_SET);
-  el.iconLabel.textContent = ICON_NAMES[icon] || 'items';
+  el.iconLabel.textContent = ICON_NAMES[icon] || 'דברים';
 
   renderCountScene(icon, currentTarget);
   el.answerInput.focus();
@@ -438,19 +438,19 @@ function finishQuestion(outcome) {
       soundKind = 'sticker';
       clearTimeout(stickerToastTimer);
       stickerToastTimer = setTimeout(() => {
-        el.feedbackMessage.textContent = `New sticker unlocked! ${newSticker}`;
+        el.feedbackMessage.textContent = `מדבקה חדשה נפתחה! ${newSticker}`;
       }, 700);
     }
 
     if (levelEvent && levelEvent.type === 'levelUp') {
       el.feedbackEmoji.textContent = '🆙';
-      el.feedbackMessage.textContent = `Level ${levelEvent.completedLevel} complete! Level ${levelEvent.newLevel} unlocked! 🎉`;
+      el.feedbackMessage.textContent = `שלב ${levelEvent.completedLevel} הושלם! שלב ${levelEvent.newLevel} נפתח! 🎉`;
       launchConfetti();
       soundKind = 'levelUp';
       delay = 3800;
     } else if (levelEvent && levelEvent.type === 'allComplete') {
       el.feedbackEmoji.textContent = '🏆';
-      el.feedbackMessage.textContent = 'You can count all the way to 20! Counting Champion! 🏆';
+      el.feedbackMessage.textContent = 'את יודעת לספור עד 20! אלופת הספירה! 🏆';
       launchConfetti();
       launchConfetti();
       soundKind = 'trophy';
@@ -461,7 +461,7 @@ function finishQuestion(outcome) {
   } else {
     el.feedbackEmoji.textContent = '💡';
     el.feedbackMessage.textContent = pickRandom(GENTLE_MESSAGES);
-    el.feedbackAnswer.textContent = `There are ${target}!`;
+    el.feedbackAnswer.textContent = `יש ${target}!`;
     el.feedbackAnswer.classList.remove('hidden');
     el.feedback.classList.add('shake');
     setTimeout(() => el.feedback.classList.remove('shake'), 400);
@@ -543,11 +543,11 @@ function renderProgress() {
     if (state.unlockedStickers.includes(idx)) {
       span.className = 'sticker';
       span.textContent = STICKER_SET[idx];
-      span.title = `Unlocked at ${milestone} stars`;
+      span.title = `נפתח ב-${milestone} כוכבים`;
     } else {
       span.className = 'sticker-locked';
       span.textContent = '⭐';
-      span.title = `Unlocks at ${milestone} stars`;
+      span.title = `נפתח ב-${milestone} כוכבים`;
     }
     el.stickerBook.appendChild(span);
   });
@@ -564,14 +564,14 @@ function renderProgress() {
     if (level > state.currentLevel) {
       cls = 'locked';
       cell.textContent = '🔒';
-      cell.title = `Locked — unlocks at Level ${level}`;
+      cell.title = `נעול — נפתח בשלב ${level}`;
     } else {
       cls = 'new';
       if (isMastered(rec)) cls = 'mastered';
       else if (isKnown(rec)) cls = 'known';
       else if (rec.attempts > 0) cls = 'learning';
       cell.textContent = n;
-      cell.title = `Number ${n}`;
+      cell.title = `מספר ${n}`;
     }
     cell.className = `number-cell ${cls}`;
     el.numberGrid.appendChild(cell);
@@ -591,8 +591,8 @@ function renderLevelList() {
     const row = document.createElement('div');
     row.className = `level-row ${isDone ? 'done' : isCurrent ? 'current' : 'locked'}`;
     const status = isDone ? '✅' : isCurrent ? '🔓' : '🔒';
-    const count = isDone || isCurrent ? `${known}/${total}` : 'Locked';
-    const label = `Level ${lvl} (${nums.join('-')})`;
+    const count = isDone || isCurrent ? `${known}/${total}` : 'נעול';
+    const label = `שלב ${lvl} (${nums.join('-')})`;
     row.innerHTML = `<span class="level-row-status">${status}</span><span class="level-row-name">${label}</span><span class="level-row-count">${count}</span>`;
     el.levelList.appendChild(row);
   }
@@ -611,7 +611,7 @@ function openSettings() {
   const x = 2 + Math.floor(Math.random() * 6);
   const y = 2 + Math.floor(Math.random() * 6);
   gateAnswer = x + y;
-  el.gateQuestion.textContent = `Quick check: what's ${x} + ${y}?`;
+  el.gateQuestion.textContent = `בדיקה מהירה: כמה זה ${x} + ${y}?`;
   el.gateInput.focus();
 }
 
@@ -635,7 +635,7 @@ function applySettings() {
 function resetProgress() {
   state = defaultState();
   saveState();
-  el.resetConfirmHint.textContent = 'All progress has been reset.';
+  el.resetConfirmHint.textContent = 'כל ההתקדמות אופסה.';
   refreshHeader();
   refreshStartHint();
 }
@@ -652,19 +652,69 @@ el.answerInput.addEventListener('keydown', (e) => {
 });
 
 el.progressBtn.addEventListener('click', () => { renderProgress(); showScreen(el.progressScreen); });
-el.backFromProgressBtn.addEventListener('click', () => showScreen(el.startScreen));
+el.backFromProgressBtn.addEventListener('click', () => { showScreen(el.startScreen); el.startBtn.focus(); });
 
 el.settingsBtn.addEventListener('click', openSettings);
 el.gateSubmit.addEventListener('click', checkGate);
 el.gateInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkGate(); });
 el.soundSelect.addEventListener('change', applySettings);
 el.resetProgressBtn.addEventListener('click', () => {
-  if (confirm("Reset all counting progress? This can't be undone.")) resetProgress();
+  if (confirm('לאפס את כל ההתקדמות בספירה? לא ניתן לבטל את זה.')) resetProgress();
 });
-el.backFromSettingsBtn.addEventListener('click', () => { refreshStartHint(); showScreen(el.startScreen); });
+el.backFromSettingsBtn.addEventListener('click', () => { refreshStartHint(); showScreen(el.startScreen); el.startBtn.focus(); });
+
+/* ---------------------------- Keyboard-first flow ----------------------------
+   The core loop (type an answer, submit, see feedback, move on) should work
+   without ever reaching for the mouse: typing a digit anywhere on the
+   question screen jumps focus into the answer box, Enter submits or —
+   once feedback is showing — jumps straight to the next question instead
+   of waiting for the auto-advance timer.
+------------------------------------------------------------------- */
+
+document.addEventListener('keydown', (e) => {
+  // The answer input owns its own Enter/typing handling. Bail out first,
+  // before re-reading any DOM state — otherwise this same event, still
+  // bubbling after the input's own listener has already (synchronously)
+  // shown the feedback panel, gets misread as "feedback just appeared,
+  // advance now" and immediately undoes what was just shown.
+  if (e.target === el.answerInput) return;
+
+  if (el.startScreen && !el.startScreen.classList.contains('hidden')) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      startPractice();
+    }
+    return;
+  }
+
+  if (el.practiceScreen.classList.contains('hidden')) return;
+
+  const feedbackVisible = !el.feedback.classList.contains('hidden');
+  if (feedbackVisible) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      clearTimeout(feedbackTimer);
+      nextQuestion();
+    }
+    return;
+  }
+
+  if (/^[0-9]$/.test(e.key)) {
+    el.answerInput.focus();
+    el.answerInput.value += e.key;
+    e.preventDefault();
+  } else if (e.key === 'Backspace') {
+    el.answerInput.focus();
+    el.answerInput.value = el.answerInput.value.slice(0, -1);
+    e.preventDefault();
+  } else if (e.key === 'Enter') {
+    submitAnswer();
+  }
+});
 
 /* ---------------------------- Init ---------------------------- */
 
 refreshHeader();
 refreshStartHint();
 showScreen(el.startScreen);
+el.startBtn.focus();

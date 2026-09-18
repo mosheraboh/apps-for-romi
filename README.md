@@ -1,5 +1,12 @@
 # Apps for Romi
 
+Both apps below have a Hebrew, right-to-left interface, and the core practice
+loop (type an answer, submit, see feedback, move to the next one) works
+entirely from the keyboard: typing a digit anywhere on the question screen
+jumps focus into the answer box (no need to click into it first), Enter
+submits, and Enter/Space again immediately advances to the next question
+instead of waiting for the auto-advance timer.
+
 ## Romi's Times Tables
 
 A friendly Mac app that helps a 7-year-old practice multiplication tables by
@@ -9,7 +16,8 @@ rewards.
 ### How it works
 
 - One exercise appears at a time (e.g. `3 × 4`). Romi types the answer, or
-  taps **"I don't know 🤔"** if she'd rather skip straight to seeing it.
+  clicks **"אני לא בטוחה 🤔"** ("I'm not sure") if she'd rather skip straight
+  to seeing it.
 - Every fact (1–10 × 1–10 by default) is tracked individually with a mastery
   "box" from 0–5, Leitner-style:
   - A correct answer moves the fact up a box.
@@ -91,8 +99,8 @@ and types how many there are, no reading required beyond digits.
 ### How it works
 
 - Each question shows a group of pictures (apples, stars, balloons, and
-  more — a random one each time) and asks "How many are there?" She types
-  the number, or taps **"Not sure? 🤔"** to see the answer.
+  more — a random one each time) and asks how many there are. She types
+  the number, or clicks **"לא בטוחה? 🤔"** ("Not sure?") to see the answer.
 - The icons pop in one at a time with a little bounce (and a soft tick
   sound), so watching them appear reinforces counting rhythmically,
   1-2-3‑style, rather than just showing a static pile.

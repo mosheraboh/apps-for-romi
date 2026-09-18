@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Romi's Times Tables</title>
+<title>לוח הכפל של רומי</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%AD%90%EF%B8%8F%3C/text%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%237C3AED'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle'%3E%E2%AD%90%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="style.css">
@@ -14,18 +14,18 @@
 
   <header class="topbar">
     <div class="topbar-row">
-      <div class="brand">✨ Romi's Times Tables ✨</div>
+      <div class="brand">✨ לוח הכפל של רומי ✨</div>
       <div class="topbar-stats">
-        <span class="pill" title="Stars earned">⭐ <span id="starCount">0</span></span>
-        <span class="pill" title="Current streak">🔥 <span id="streakCount">0</span></span>
-        <button id="progressBtn" class="icon-btn" title="See my progress">📊</button>
-        <button id="settingsBtn" class="icon-btn" title="Settings (grown-ups)">⚙️</button>
+        <span class="pill" title="כוכבים שנצברו">⭐ <span id="starCount">0</span></span>
+        <span class="pill" title="רצף נוכחי">🔥 <span id="streakCount">0</span></span>
+        <button id="progressBtn" class="icon-btn" title="ההתקדמות שלי">📊</button>
+        <button id="settingsBtn" class="icon-btn" title="הגדרות (למבוגרים)">⚙️</button>
       </div>
     </div>
-    <div class="level-bar" title="How close Romi is to finishing this level">
+    <div class="level-bar" title="כמה רומי קרובה לסיים את השלב הזה">
       <div class="level-bar-label">
-        <span id="levelBadge">Level 1 of 10</span>
-        <span id="levelProgressText">0/0 known</span>
+        <span id="levelBadge">שלב 1 מתוך 10</span>
+        <span id="levelProgressText">0/0 ידועים</span>
       </div>
       <div class="level-bar-track">
         <div class="level-bar-fill" id="levelProgressFill"></div>
@@ -39,9 +39,9 @@
     <!-- START SCREEN -->
     <section id="startScreen" class="screen">
       <div class="mascot">🦄</div>
-      <h1>Hi Romi!</h1>
-      <p class="subtitle">Ready to practice your times tables?</p>
-      <button id="startBtn" class="big-btn primary">Let's Go! 🚀</button>
+      <h1>היי רומי!</h1>
+      <p class="subtitle">מוכנה לתרגל את לוח הכפל?</p>
+      <button id="startBtn" class="big-btn primary">בואי נתחיל! 🚀</button>
       <p class="tiny-hint" id="startHint"></p>
     </section>
 
@@ -53,16 +53,16 @@
           <input type="number" inputmode="numeric" id="answerInput" class="answer-input" placeholder="?" autocomplete="off">
         </div>
         <div class="button-row">
-          <button id="submitBtn" class="big-btn primary">Check ✅</button>
-          <button id="dontKnowBtn" class="big-btn secondary">I don't know 🤔</button>
+          <button id="submitBtn" class="big-btn primary">בדיקה ✅</button>
+          <button id="dontKnowBtn" class="big-btn secondary">אני לא בטוחה 🤔</button>
         </div>
       </div>
 
       <div id="feedback" class="feedback hidden">
         <div id="feedbackEmoji" class="feedback-emoji">🎉</div>
-        <div id="feedbackMessage" class="feedback-message">Amazing!</div>
+        <div id="feedbackMessage" class="feedback-message">מדהים!</div>
         <div id="feedbackAnswer" class="feedback-answer hidden"></div>
-        <button id="nextBtn" class="big-btn primary">Next One ➡️</button>
+        <button id="nextBtn" class="big-btn primary">⬅️ התרגיל הבא</button>
       </div>
 
       <div id="confettiLayer" class="confetti-layer"></div>
@@ -70,46 +70,46 @@
 
     <!-- PROGRESS SCREEN -->
     <section id="progressScreen" class="screen hidden">
-      <h2>My Progress 📊</h2>
+      <h2>ההתקדמות שלי 📊</h2>
       <div class="progress-summary">
-        <div class="stat-box"><div class="stat-num" id="statStars">0</div><div class="stat-label">Stars</div></div>
-        <div class="stat-box"><div class="stat-num" id="statBest">0</div><div class="stat-label">Best streak</div></div>
-        <div class="stat-box"><div class="stat-num" id="statKnown">0</div><div class="stat-label">Facts mastered</div></div>
-        <div class="stat-box"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total facts</div></div>
+        <div class="stat-box"><div class="stat-num" id="statStars">0</div><div class="stat-label">כוכבים</div></div>
+        <div class="stat-box"><div class="stat-num" id="statBest">0</div><div class="stat-label">רצף שיא</div></div>
+        <div class="stat-box"><div class="stat-num" id="statKnown">0</div><div class="stat-label">תרגילים שאני יודעת</div></div>
+        <div class="stat-box"><div class="stat-num" id="statTotal">0</div><div class="stat-label">סה"כ תרגילים</div></div>
       </div>
 
-      <h3>Sticker Book 🎨</h3>
+      <h3>אלבום המדבקות 🎨</h3>
       <div id="stickerBook" class="sticker-book"></div>
 
-      <h3>My Levels</h3>
+      <h3>השלבים שלי</h3>
       <div id="levelList" class="level-list"></div>
 
-      <h3>My Times Table Map</h3>
+      <h3>מפת לוח הכפל שלי</h3>
       <p class="legend">
-        <span class="legend-item">🔒 Locked</span>
-        <span class="legend-item"><span class="swatch swatch-new"></span> New</span>
-        <span class="legend-item"><span class="swatch swatch-learning"></span> Learning</span>
-        <span class="legend-item"><span class="swatch swatch-known"></span> Known</span>
-        <span class="legend-item"><span class="swatch swatch-mastered"></span> Mastered!</span>
+        <span class="legend-item">🔒 נעול</span>
+        <span class="legend-item"><span class="swatch swatch-new"></span> חדש</span>
+        <span class="legend-item"><span class="swatch swatch-learning"></span> לומדת</span>
+        <span class="legend-item"><span class="swatch swatch-known"></span> יודעת</span>
+        <span class="legend-item"><span class="swatch swatch-mastered"></span> שולטת!</span>
       </p>
       <div id="factGrid" class="fact-grid"></div>
 
-      <button id="backFromProgressBtn" class="big-btn primary">Back to Practice</button>
+      <button id="backFromProgressBtn" class="big-btn primary">בחזרה לתרגול</button>
     </section>
 
     <!-- SETTINGS SCREEN (grown-ups) -->
     <section id="settingsScreen" class="screen hidden">
-      <h2>Grown-up Settings ⚙️</h2>
-      <p class="tiny-hint">Quick check so Romi doesn't wander in here by accident.</p>
+      <h2>הגדרות למבוגרים ⚙️</h2>
+      <p class="tiny-hint">בדיקה קטנה כדי שרומי לא תיכנס לכאן בטעות.</p>
       <div id="gateBox">
         <p id="gateQuestion" class="gate-question"></p>
         <input type="number" id="gateInput" class="answer-input" placeholder="?" autocomplete="off">
-        <button id="gateSubmit" class="big-btn primary">Enter</button>
-        <p id="gateError" class="gate-error hidden">Not quite — try again.</p>
+        <button id="gateSubmit" class="big-btn primary">כניסה</button>
+        <p id="gateError" class="gate-error hidden">לא בדיוק — נסו שוב.</p>
       </div>
       <div id="settingsBody" class="hidden">
         <label class="settings-row">
-          Times tables up to:
+          לוח הכפל עד:
           <select id="maxTableSelect">
             <option value="5">5</option>
             <option value="10" selected>10</option>
@@ -117,16 +117,16 @@
           </select>
         </label>
         <label class="settings-row">
-          Sound effects:
+          אפקטים קוליים:
           <select id="soundSelect">
-            <option value="on" selected>On</option>
-            <option value="off">Off</option>
+            <option value="on" selected>פועל</option>
+            <option value="off">כבוי</option>
           </select>
         </label>
-        <button id="resetProgressBtn" class="big-btn secondary">Reset All Progress</button>
+        <button id="resetProgressBtn" class="big-btn secondary">איפוס כל ההתקדמות</button>
         <p class="tiny-hint" id="resetConfirmHint"></p>
       </div>
-      <button id="backFromSettingsBtn" class="big-btn primary">Done</button>
+      <button id="backFromSettingsBtn" class="big-btn primary">סיימתי</button>
     </section>
 
   </main>
