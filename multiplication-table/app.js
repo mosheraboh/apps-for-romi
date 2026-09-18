@@ -8,6 +8,10 @@
    - Mixes ~2/3 practice from facts she's expected to know with
      ~1/3 from facts she's still learning (spaced repetition)
    - Rewards correct answers with stars, streaks, and stickers
+   - Splits the times table into 10 levels, taught in the order kids
+     usually find easiest (1s, 2s, 10s, 5s, 3s, 4s, 6s, 9s, 7s, 8s).
+     Only facts from unlocked levels are asked; a level is complete once
+     every fact in it is "known", which unlocks the next one.
    All progress is stored in this browser's localStorage on this Mac.
 ------------------------------------------------------------------------ */
 
@@ -32,6 +36,11 @@ const GENTLE_MESSAGES = [
   "Almost! Let's keep practicing this one. 🌱"
 ];
 
+// Numbers introduced roughly easiest-first. Facts are grouped into levels
+// by whichever of their two factors is introduced first.
+const LEVEL_INTRO_ORDER = [1, 2, 10, 5, 3, 4, 6, 9, 7, 8, 11, 12];
+const TARGET_LEVEL_COUNT = 10;
+
 /* ---------------------------- State ---------------------------- */
 
 function defaultState() {
@@ -43,6 +52,8 @@ function defaultState() {
     totalCorrect: 0,
     totalAsked: 0,
     unlockedStickers: [],
+    currentLevel: 1,
+    trophyShown: false,
     settings: { maxTable: 10, sound: 'on' }
   };
 }
@@ -101,6 +112,84 @@ function getFactRecord(id) {
 function isKnown(rec) { return rec.box >= KNOWN_BOX_THRESHOLD; }
 function isMastered(rec) { return rec.box >= MASTERED_BOX_THRESHOLD; }
 
+/* ------------------------ Levels ------------------------
+   The times table is split into levels (10 by default; fewer only if a
+   smaller table range is chosen in settings). Level groups are built from
+   LEVEL_INTRO_ORDER, chunked as evenly as possible; a fact belongs to
+   whichever level introduces the EARLIER of its two factors, matching how
+   a "times table" is taught (e.g. 3 x 4 is learned as part of the 3s).
+------------------------------------------------------------------- */
+
+function getLevelGroups(maxTable) {
+  const numbers = LEVEL_INTRO_ORDER.filter(n => n <= maxTable);
+  const levelCount = Math.min(TARGET_LEVEL_COUNT, numbers.length);
+  const base = Math.floor(numbers.length / levelCount);
+  const rem = numbers.length % levelCount;
+  const groups = [];
+  let idx = 0;
+  for (let i = 0; i < levelCount; i++) {
+    const size = base + (i < rem ? 1 : 0);
+    groups.push(numbers.slice(idx, idx + size));
+    idx += size;
+  }
+  return groups;
+}
+
+function getNumberLevelMap(maxTable) {
+  const groups = getLevelGroups(maxTable);
+  const map = {};
+  groups.forEach((nums, i) => nums.forEach(n => { map[n] = i + 1; }));
+  return map;
+}
+
+function getLevelCount() {
+  return getLevelGroups(state.settings.maxTable).length;
+}
+
+function getFactsForLevel(level) {
+  const map = getNumberLevelMap(state.settings.maxTable);
+  return allFactIds().filter(id => {
+    const rec = getFactRecord(id);
+    return Math.min(map[rec.a], map[rec.b]) === level;
+  });
+}
+
+function getUnlockedFactIds() {
+  const map = getNumberLevelMap(state.settings.maxTable);
+  return allFactIds().filter(id => {
+    const rec = getFactRecord(id);
+    return Math.min(map[rec.a], map[rec.b]) <= state.currentLevel;
+  });
+}
+
+function checkLevelCompletion() {
+  const levelCount = getLevelCount();
+  const facts = getFactsForLevel(state.currentLevel);
+  const allKnown = facts.length > 0 && facts.every(id => isKnown(getFactRecord(id)));
+  if (!allKnown) return null;
+
+  if (state.currentLevel < levelCount) {
+    state.currentLevel += 1;
+    return { type: 'levelUp', completedLevel: state.currentLevel - 1, newLevel: state.currentLevel };
+  }
+  if (!state.trophyShown) {
+    state.trophyShown = true;
+    return { type: 'allComplete' };
+  }
+  return null;
+}
+
+function levelProgressData() {
+  const levelCount = getLevelCount();
+  const level = Math.min(state.currentLevel, levelCount);
+  const facts = getFactsForLevel(level);
+  const known = facts.filter(id => isKnown(getFactRecord(id))).length;
+  const total = facts.length;
+  const percent = total ? Math.round((known / total) * 100) : 100;
+  const done = state.trophyShown && level === levelCount;
+  return { level, levelCount, known, total, percent, done };
+}
+
 /* ------------------------ Fact selection ------------------------
    ~2/3 of the time: pick from facts she's expected to know (box >= 3),
      weighted toward the ones seen longest ago (spaced repetition).
@@ -111,7 +200,7 @@ function isMastered(rec) { return rec.box >= MASTERED_BOX_THRESHOLD; }
 ------------------------------------------------------------------- */
 
 function pickNextFact() {
-  const ids = allFactIds();
+  const ids = getUnlockedFactIds();
   const known = [];
   const learning = [];
 
@@ -175,6 +264,8 @@ function recordAnswer(id, outcome) {
   rec.lastSeen = Date.now();
   state.totalAsked += 1;
 
+  let levelEvent = null;
+
   if (outcome === 'correct') {
     rec.correct += 1;
     rec.box = Math.min(MAX_BOX, rec.box + 1);
@@ -183,6 +274,7 @@ function recordAnswer(id, outcome) {
     state.currentStreak += 1;
     state.bestStreak = Math.max(state.bestStreak, state.currentStreak);
     maybeUnlockSticker();
+    levelEvent = checkLevelCompletion();
   } else if (outcome === 'wrong') {
     rec.box = Math.max(0, rec.box - 1);
     state.currentStreak = 0;
@@ -192,6 +284,7 @@ function recordAnswer(id, outcome) {
   }
 
   saveState();
+  return levelEvent;
 }
 
 function maybeUnlockSticker() {
@@ -210,6 +303,11 @@ const el = {
   streakCount: document.getElementById('streakCount'),
   progressBtn: document.getElementById('progressBtn'),
   settingsBtn: document.getElementById('settingsBtn'),
+
+  levelBadge: document.getElementById('levelBadge'),
+  levelProgressText: document.getElementById('levelProgressText'),
+  levelProgressFill: document.getElementById('levelProgressFill'),
+  levelProgressHint: document.getElementById('levelProgressHint'),
 
   startScreen: document.getElementById('startScreen'),
   startBtn: document.getElementById('startBtn'),
@@ -234,6 +332,7 @@ const el = {
   statKnown: document.getElementById('statKnown'),
   statTotal: document.getElementById('statTotal'),
   stickerBook: document.getElementById('stickerBook'),
+  levelList: document.getElementById('levelList'),
   factGrid: document.getElementById('factGrid'),
   backFromProgressBtn: document.getElementById('backFromProgressBtn'),
 
@@ -263,6 +362,26 @@ function showScreen(screen) {
 function refreshHeader() {
   el.starCount.textContent = state.stars;
   el.streakCount.textContent = state.currentStreak;
+  refreshLevelBar();
+}
+
+function refreshLevelBar() {
+  const d = levelProgressData();
+  el.levelBadge.textContent = d.done
+    ? `All ${d.levelCount} levels complete! 🏆`
+    : `Level ${d.level} of ${d.levelCount}`;
+  el.levelProgressText.textContent = `${d.known}/${d.total} known`;
+  el.levelProgressFill.style.width = d.percent + '%';
+  el.levelProgressHint.textContent = levelHintText(d.percent, d.done);
+}
+
+function levelHintText(percent, done) {
+  if (done) return "You're a Times Tables Champion! 🏆";
+  if (percent >= 100) return 'Level complete! 🎉';
+  if (percent >= 75) return 'So close! 🌟';
+  if (percent >= 50) return 'Halfway there! 💪';
+  if (percent >= 25) return 'Making progress! 🚀';
+  return 'Just getting started! 🌱';
 }
 
 /* ---------------------------- Start screen ---------------------------- */
@@ -315,11 +434,13 @@ function finishQuestion(outcome, correctAnswer) {
   el.submitBtn.disabled = true;
   el.dontKnowBtn.disabled = true;
 
-  recordAnswer(currentFact.id, outcome);
+  const levelEvent = recordAnswer(currentFact.id, outcome);
   refreshHeader();
 
   el.questionCard.classList.add('hidden');
   el.feedback.classList.remove('hidden');
+
+  let delay = 2600;
 
   if (outcome === 'correct') {
     el.feedbackEmoji.textContent = pickRandom(['🎉','⭐','🥳','🌈','🚀','🏆']);
@@ -327,11 +448,25 @@ function finishQuestion(outcome, correctAnswer) {
     el.feedbackAnswer.classList.add('hidden');
     launchConfetti();
     playSound('correct');
+
     const newSticker = getNewestSticker();
-    if (newSticker) {
+    if (newSticker && !levelEvent) {
       setTimeout(() => {
         el.feedbackMessage.textContent = `New sticker unlocked! ${newSticker}`;
       }, 700);
+    }
+
+    if (levelEvent && levelEvent.type === 'levelUp') {
+      el.feedbackEmoji.textContent = '🆙';
+      el.feedbackMessage.textContent = `Level ${levelEvent.completedLevel} complete! Level ${levelEvent.newLevel} unlocked! 🎉`;
+      launchConfetti();
+      delay = 3800;
+    } else if (levelEvent && levelEvent.type === 'allComplete') {
+      el.feedbackEmoji.textContent = '🏆';
+      el.feedbackMessage.textContent = 'You know ALL your times tables! Multiplication Champion! 🏆';
+      launchConfetti();
+      launchConfetti();
+      delay = 4200;
     }
   } else {
     el.feedbackEmoji.textContent = '💡';
@@ -344,7 +479,7 @@ function finishQuestion(outcome, correctAnswer) {
   }
 
   clearTimeout(feedbackTimer);
-  feedbackTimer = setTimeout(nextQuestion, 2600);
+  feedbackTimer = setTimeout(nextQuestion, delay);
 }
 
 function getNewestSticker() {
@@ -426,8 +561,11 @@ function renderProgress() {
     el.stickerBook.appendChild(span);
   });
 
+  renderLevelList();
+
   // Fact grid
   const max = state.settings.maxTable;
+  const levelMap = getNumberLevelMap(max);
   el.factGrid.innerHTML = '';
   el.factGrid.style.gridTemplateColumns = `repeat(${max + 1}, 1fr)`;
 
@@ -451,15 +589,43 @@ function renderProgress() {
 
     for (let b = 1; b <= max; b++) {
       const rec = getFactRecord(factId(a, b));
+      const factLevel = Math.min(levelMap[a], levelMap[b]);
       const cell = document.createElement('div');
-      let cls = 'new';
-      if (isMastered(rec)) cls = 'mastered';
-      else if (isKnown(rec)) cls = 'known';
-      else if (rec.attempts > 0) cls = 'learning';
+      let cls;
+      if (factLevel > state.currentLevel) {
+        cls = 'locked';
+        cell.textContent = '🔒';
+        cell.title = `Locked — unlocks at Level ${factLevel}`;
+      } else {
+        cls = 'new';
+        if (isMastered(rec)) cls = 'mastered';
+        else if (isKnown(rec)) cls = 'known';
+        else if (rec.attempts > 0) cls = 'learning';
+        cell.title = `${a} × ${b} = ${a * b}`;
+      }
       cell.className = `fact-cell ${cls}`;
-      cell.title = `${a} × ${b} = ${a * b}`;
       el.factGrid.appendChild(cell);
     }
+  }
+}
+
+function renderLevelList() {
+  const levelCount = getLevelCount();
+  el.levelList.innerHTML = '';
+  for (let lvl = 1; lvl <= levelCount; lvl++) {
+    const facts = getFactsForLevel(lvl);
+    const known = facts.filter(id => isKnown(getFactRecord(id))).length;
+    const total = facts.length;
+
+    const isDone = lvl < state.currentLevel || (lvl === state.currentLevel && lvl === levelCount && state.trophyShown);
+    const isCurrent = lvl === state.currentLevel && !isDone;
+
+    const row = document.createElement('div');
+    row.className = `level-row ${isDone ? 'done' : isCurrent ? 'current' : 'locked'}`;
+    const status = isDone ? '✅' : isCurrent ? '🔓' : '🔒';
+    const count = isDone || isCurrent ? `${known}/${total}` : 'Locked';
+    row.innerHTML = `<span class="level-row-status">${status}</span><span class="level-row-name">Level ${lvl}</span><span class="level-row-count">${count}</span>`;
+    el.levelList.appendChild(row);
   }
 }
 
@@ -496,7 +662,13 @@ function checkGate() {
 function applySettings() {
   state.settings.maxTable = Number(el.maxTableSelect.value);
   state.settings.sound = el.soundSelect.value;
+  // Table range change reshapes the levels — keep currentLevel in range
+  // and let a fresh trophy be earned against the new fact set.
+  state.currentLevel = Math.min(state.currentLevel, getLevelCount());
+  state.trophyShown = false;
   saveState();
+  refreshHeader();
+  refreshStartHint();
 }
 
 function resetProgress() {
@@ -504,6 +676,7 @@ function resetProgress() {
   saveState();
   el.resetConfirmHint.textContent = 'All progress has been reset.';
   refreshHeader();
+  refreshStartHint();
 }
 
 /* ---------------------------- Event wiring ---------------------------- */

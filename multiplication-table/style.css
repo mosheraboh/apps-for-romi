@@ -33,14 +33,22 @@ html, body {
 
 .topbar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 10px;
   padding: 14px 22px;
   background: rgba(255,255,255,0.6);
   backdrop-filter: blur(6px);
   position: sticky;
   top: 0;
   z-index: 10;
+}
+
+.topbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .brand {
@@ -75,6 +83,44 @@ html, body {
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 .icon-btn:hover { transform: scale(1.08); }
+
+.level-bar {
+  width: 100%;
+}
+
+.level-bar-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--purple-dark);
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+.level-bar-track {
+  width: 100%;
+  height: 14px;
+  background: rgba(124, 58, 237, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.level-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--purple), var(--pink));
+  transition: width 0.5s ease;
+}
+
+.level-bar-hint {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.6;
+  margin-top: 3px;
+}
 
 main {
   flex: 1;
@@ -312,6 +358,37 @@ h1 {
   filter: grayscale(1);
 }
 
+.level-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.level-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.level-row-name { flex: 1; text-align: left; }
+.level-row-count { font-size: 13px; opacity: 0.7; }
+
+.level-row.current {
+  background: #F5F3FF;
+  border: 2px solid var(--purple);
+}
+
+.level-row.locked {
+  opacity: 0.55;
+}
+
 .legend {
   display: flex;
   gap: 14px;
@@ -372,6 +449,7 @@ h1 {
 .fact-cell.learning { background: var(--yellow); }
 .fact-cell.known { background: #86EFAC; }
 .fact-cell.mastered { background: var(--green-dark); color: white; }
+.fact-cell.locked { background: #F3F4F6; color: #D1D5DB; opacity: 0.7; font-size: 9px; }
 
 /* Settings */
 .gate-question {

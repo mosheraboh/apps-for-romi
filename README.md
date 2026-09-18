@@ -16,21 +16,32 @@ rewards.
   - A wrong answer moves it down a box.
   - "I don't know" moves it down two boxes (it clearly needs more practice).
   - A fact counts as **known** once its box reaches 3+.
-- Questions are picked so that **about 2/3 come from facts she's expected to
-  know** (reviewed with spaced repetition — the longer since she last saw
-  one, the more likely it's picked, to keep it fresh) and **about 1/3 from
-  facts she's still learning** (weighted toward the ones she struggles with
-  most). This keeps practice mostly encouraging while steadily working on
-  weak spots.
+- **10 levels.** The times table is split into 10 levels, taught in the order
+  kids usually find easiest: 1s, 2s, 10s, 5s, 3s, 4s, 6s, 9s, 7s, 8s. Only
+  facts from the current (and earlier) levels are ever asked. A level is
+  complete once every fact in it is known, which unlocks the next one with a
+  "Level up!" celebration.
+- **A global progress bar**, always visible at the top of the app, shows
+  Romi exactly how close she is to finishing her current level (e.g.
+  "Level 3 of 10 — 6/8 known — So close! 🌟"), so she always has a concrete,
+  visible target to aim for.
+- Within whatever is currently unlocked, questions are picked so that
+  **about 2/3 come from facts she's expected to know** (reviewed with spaced
+  repetition — the longer since she last saw one, the more likely it's
+  picked, to keep it fresh) and **about 1/3 from facts she's still learning**
+  (weighted toward the ones she struggles with most). This keeps practice
+  mostly encouraging while steadily working on weak spots.
 - Correct answers earn a star, a streak counter, a burst of confetti, and a
   cheerful message. Getting something wrong or skipping is always gentle —
   it just shows the right answer and quietly queues that fact for more
   practice, no penalty beyond that.
 - Star milestones unlock stickers for a growing "sticker book."
-- A progress screen shows a color-coded 10×10 grid of every fact (new /
-  learning / known / mastered), plus totals and best streak.
+- A progress screen shows a level-by-level checklist, a color-coded 10×10
+  grid of every fact (locked / new / learning / known / mastered), plus
+  totals and best streak.
 - A lightweight settings screen (behind a simple grown-up math check) lets
-  you change the table range (5, 10, or 12), toggle sound, or reset progress.
+  you change the table range (5, 10, or 12 — the level count adjusts
+  automatically for smaller ranges), toggle sound, or reset progress.
 
 All progress is saved locally in the browser via `localStorage` — nothing
 leaves the Mac, no account or internet connection needed.

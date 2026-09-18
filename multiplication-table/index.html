@@ -13,12 +13,24 @@
 <div id="app">
 
   <header class="topbar">
-    <div class="brand">✨ Romi's Times Tables ✨</div>
-    <div class="topbar-stats">
-      <span class="pill" title="Stars earned">⭐ <span id="starCount">0</span></span>
-      <span class="pill" title="Current streak">🔥 <span id="streakCount">0</span></span>
-      <button id="progressBtn" class="icon-btn" title="See my progress">📊</button>
-      <button id="settingsBtn" class="icon-btn" title="Settings (grown-ups)">⚙️</button>
+    <div class="topbar-row">
+      <div class="brand">✨ Romi's Times Tables ✨</div>
+      <div class="topbar-stats">
+        <span class="pill" title="Stars earned">⭐ <span id="starCount">0</span></span>
+        <span class="pill" title="Current streak">🔥 <span id="streakCount">0</span></span>
+        <button id="progressBtn" class="icon-btn" title="See my progress">📊</button>
+        <button id="settingsBtn" class="icon-btn" title="Settings (grown-ups)">⚙️</button>
+      </div>
+    </div>
+    <div class="level-bar" title="How close Romi is to finishing this level">
+      <div class="level-bar-label">
+        <span id="levelBadge">Level 1 of 10</span>
+        <span id="levelProgressText">0/0 known</span>
+      </div>
+      <div class="level-bar-track">
+        <div class="level-bar-fill" id="levelProgressFill"></div>
+      </div>
+      <div class="level-bar-hint" id="levelProgressHint"></div>
     </div>
   </header>
 
@@ -69,8 +81,12 @@
       <h3>Sticker Book 🎨</h3>
       <div id="stickerBook" class="sticker-book"></div>
 
+      <h3>My Levels</h3>
+      <div id="levelList" class="level-list"></div>
+
       <h3>My Times Table Map</h3>
       <p class="legend">
+        <span class="legend-item">🔒 Locked</span>
         <span class="legend-item"><span class="swatch swatch-new"></span> New</span>
         <span class="legend-item"><span class="swatch swatch-learning"></span> Learning</span>
         <span class="legend-item"><span class="swatch swatch-known"></span> Known</span>
