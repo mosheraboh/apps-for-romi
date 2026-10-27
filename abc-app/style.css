@@ -330,9 +330,14 @@ h1 {
   margin-bottom: 18px;
 }
 
-/* --- Sequence: letter tiles with one blank "?" tile --- */
+/* --- Sequence: letter tiles with one blank "?" tile ---
+   English letters read left-to-right even on this RTL page, so this
+   row must not mirror — without `direction: ltr` the DOM order (e.g.
+   blank, C, D) renders visually as D, C, blank: the alphabet appears
+   to count DOWN, exactly backwards from the lesson this mode teaches. */
 .sequence-row {
   display: flex;
+  direction: ltr;
   gap: 10px;
   justify-content: center;
   margin-bottom: 18px;

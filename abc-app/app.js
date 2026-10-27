@@ -454,6 +454,10 @@ function nextQuestion() {
   currentTarget = pickNextTarget();
   currentMode = pickGameMode();
   RENDERERS[currentMode](currentTarget);
+  // Say the letter's name as each question appears — for a first
+  // exposure to a new alphabet, hearing it shouldn't depend on her
+  // remembering to tap the "hear it" button; that stays as a repeat.
+  speakLetter(currentTarget);
 }
 
 function makeLetterButtons(container, choices, onPick) {
@@ -521,17 +525,15 @@ function renderHuntMode(target) {
   el.huntDoneBtn.disabled = false; // fixed element reused every round
   el.huntTargetLetters.textContent = target + target.toLowerCase();
 
+  // A smaller tray (one pickDecoys call, so decoys can't repeat) keeps
+  // this mode from being an all-or-nothing gotcha: fewer tiles means
+  // fewer chances to miss or mis-tap one by accident.
   const decoyLetters = pickDecoys(target, 4);
   const tiles = [
     { letter: target, match: true },
     { letter: target.toLowerCase(), match: true },
   ];
   decoyLetters.forEach(l => {
-    tiles.push({ letter: Math.random() < 0.5 ? l : l.toLowerCase(), match: false });
-  });
-  // pad with a couple more decoys for a fuller, more fun-looking tray
-  const extraDecoys = pickDecoys(target, 3);
-  extraDecoys.forEach(l => {
     tiles.push({ letter: Math.random() < 0.5 ? l : l.toLowerCase(), match: false });
   });
 
