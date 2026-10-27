@@ -696,11 +696,27 @@ function playSound(kind) {
 // English name, independent of the sound-effects on/off setting, since
 // it's instructional content (the whole point for a non-English
 // speaker) rather than a reward cue.
+//
+// Speaks the letter's NAME as a word (e.g. "Bee"), not the bare
+// character — Safari's speech synthesis reads a lone capital letter as
+// "Capital B" but a lone lowercase one as just "b", so passing the
+// canonical uppercase letter always announced "Capital X" even on
+// rounds about the lowercase form, or both forms together (hunt mode's
+// ticket shows "Bb"). A letter's spoken name has no case, so this
+// sidesteps the mismatch entirely instead of branching per mode.
+const LETTER_NAMES = {
+  A: 'Ay', B: 'Bee', C: 'See', D: 'Dee', E: 'Ee', F: 'Eff', G: 'Jee', H: 'Aitch',
+  I: 'Eye', J: 'Jay', K: 'Kay', L: 'El', M: 'Em', N: 'En', O: 'Oh', P: 'Pee',
+  Q: 'Cue', R: 'Are', S: 'Ess', T: 'Tee', U: 'You', V: 'Vee', W: 'Double U',
+  X: 'Ex', Y: 'Why', Z: 'Zee'
+};
+
 function speakLetter(letter) {
   try {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(letter);
+    const name = LETTER_NAMES[letter.toUpperCase()] || letter;
+    const utter = new SpeechSynthesisUtterance(name);
     utter.lang = 'en-US';
     utter.rate = 0.8;
     window.speechSynthesis.speak(utter);
