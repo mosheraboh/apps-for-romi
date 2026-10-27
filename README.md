@@ -1,17 +1,20 @@
 # Apps for Romi
 
-Both apps below have a Hebrew, right-to-left interface, and the core practice
-loop (type an answer, submit, see feedback, move to the next one) works
-entirely from the keyboard: typing a digit anywhere on the question screen
-jumps focus into the answer box (no need to click into it first), Enter
-submits, and Enter/Space again immediately advances to the next question
-instead of waiting for the auto-advance timer.
+All three apps below have a Hebrew interface and are plain offline web apps
+(HTML/CSS/JS, no build step, no server) rather than compiled `.app` bundles —
+double-click the `Start ... .command` launcher in each app's folder (or just
+open its `index.html` directly), then use Safari's **File → Add to Dock** to
+give it its own Dock icon and window.
 
 ## Romi's Times Tables
 
 A friendly Mac app that helps a 7-year-old practice multiplication tables by
 memorization — one question at a time, with stars, streaks, and stickers as
-rewards.
+rewards. The core practice loop (type an answer, submit, see feedback, move
+to the next one) works entirely from the keyboard: typing a digit anywhere
+on the question screen jumps focus into the answer box (no need to click
+into it first), Enter submits, and Enter/Space again immediately advances to
+the next question instead of waiting for the auto-advance timer.
 
 ### How it works
 
@@ -171,4 +174,69 @@ counting-app/
   style.css                   styling/animations
   app.js                      game logic: number tracking, selection, rewards
   Start Counting App.command  double-click launcher
+```
+
+## לומדים ABC! (Learning ABC)
+
+A Mac app that teaches the English alphabet — both uppercase and lowercase —
+to a 7-year-old native Hebrew speaker who doesn't know English yet. All
+instructions are in Hebrew (which she reads fluently); English only appears
+as the letters themselves and their spoken names.
+
+### How it works
+
+- Each round asks about one letter, but the **mini-game** asking it rotates
+  (avoiding back-to-back repeats) across four formats:
+  - **Case match** — shown a letter in one case, tap it in the other case
+    among 3 choices.
+  - **Picture** — shown a classic mnemonic picture (🍎 for A, 🎈 for B, 🐱
+    for C, …), tap the letter it represents.
+  - **Sequence** — a short alphabetical run of letters with one blank "❓"
+    tile; tap what belongs there.
+  - **Letter hunt** — an owl's order ticket shows a target letter (e.g.
+    "Bb"); tap every tile in a small tray that matches it (either case)
+    among decoys, then confirm.
+- The current letter's English name is **spoken aloud automatically** each
+  round (Web Speech API) — for a first exposure to a new alphabet, hearing
+  it shouldn't depend on her remembering to ask. A "🔊 תשמיעו לי!" button
+  repeats it on demand, independent of the sound-effects on/off setting.
+- She can always click **"לא בטוחה? 🤔"** ("not sure?") to see the answer.
+- Letter mastery (0–5 box, Leitner-style) and the ~2/3-known/1/3-learning
+  practice mix work exactly like the counting app, just per-letter instead
+  of per-number.
+- **13 levels**, unlocking 2 letters at a time in strict alphabetical order
+  (Level 1 = A,B … Level 13 = Y,Z) — order matters here, since reciting the
+  alphabet correctly is itself part of the goal.
+- Stars, streaks, confetti, a sticker book, and distinct level-up/trophy
+  sound fanfares — same reward system as the other two apps.
+- A progress screen shows a level-by-level checklist and an A–Z letter
+  mastery grid; settings (behind a grown-up math check) toggle sound or
+  reset progress.
+
+This app was built with an evaluator subagent in the loop: a separate
+Claude instance actually played through each draft with a browser, judged
+it for fun, clarity, and pedagogy, and reported concrete issues — including
+a real bug where the "sequence" mode's letters rendered in reverse
+(right-to-left mirroring from the page's RTL layout bled into English
+letter order), which was fixed and re-verified before shipping.
+
+### Running it on the Mac
+
+Same pattern as the other two apps — it's an offline web app, not a
+compiled `.app`.
+
+1. Double-click **`Start ABC App.command`** inside the `abc-app` folder
+   (right-click → **Open** the first time, to get past Gatekeeper — or just
+   double-click `index.html` directly to skip the launcher entirely).
+2. It opens in Safari. Use **File → Add to Dock** there to give it its own
+   Dock icon and window.
+
+### Files
+
+```
+abc-app/
+  index.html              the app UI
+  style.css               styling/animations
+  app.js                  game logic: letter tracking, selection, rewards
+  Start ABC App.command   double-click launcher
 ```
