@@ -454,10 +454,14 @@ function nextQuestion() {
   currentTarget = pickNextTarget();
   currentMode = pickGameMode();
   RENDERERS[currentMode](currentTarget);
-  // Say the letter's name as each question appears — for a first
-  // exposure to a new alphabet, hearing it shouldn't depend on her
-  // remembering to tap the "hear it" button; that stays as a repeat.
-  speakLetter(currentTarget);
+  // Only auto-speak when the target letter is already visible on screen
+  // (case mode shows the letter itself; hunt mode shows it on the owl's
+  // ticket) — saying it for picture/sequence mode would hand her the
+  // answer to the puzzle outright. The "hear it" button still works
+  // manually in every mode if she wants a hint.
+  if (currentMode === 'case' || currentMode === 'hunt') {
+    speakLetter(currentTarget);
+  }
 }
 
 function makeLetterButtons(container, choices, onPick) {
