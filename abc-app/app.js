@@ -704,8 +704,15 @@ function playSound(kind) {
 // rounds about the lowercase form, or both forms together (hunt mode's
 // ticket shows "Bb"). A letter's spoken name has no case, so this
 // sidesteps the mismatch entirely instead of branching per mode.
+//
+// Note on "A": the obvious spelling "Ay" is also a real English word
+// (the interjection "ay"/"aye", meaning yes), which dictionaries — and
+// speech synthesis — pronounce like "I" (/aɪ/), not like the letter
+// name (/eɪ/, as in "day"). "Ayy" isn't a real dictionary entry, so it
+// falls back to the regular English spelling rule instead (an "ay" at
+// the end of a word reads as in day/way/say/play).
 const LETTER_NAMES = {
-  A: 'Ay', B: 'Bee', C: 'See', D: 'Dee', E: 'Ee', F: 'Eff', G: 'Jee', H: 'Aitch',
+  A: 'Ayy', B: 'Bee', C: 'See', D: 'Dee', E: 'Ee', F: 'Eff', G: 'Jee', H: 'Aitch',
   I: 'Eye', J: 'Jay', K: 'Kay', L: 'El', M: 'Em', N: 'En', O: 'Oh', P: 'Pee',
   Q: 'Cue', R: 'Are', S: 'Ess', T: 'Tee', U: 'You', V: 'Vee', W: 'Double U',
   X: 'Ex', Y: 'Why', Z: 'Zee'
